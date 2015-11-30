@@ -20,18 +20,16 @@ my $DBH = DBI->connect(
     }
 );
 
-
 my $schema = Source::Gauge::DB::Schema->new( dbh => { rw => $DBH } );
-
-foreach my $table ( @{ $schema->tables } ) {
-    $DBH->do( $table->table_definition );
-}
+isa_ok($schema, 'Source::Gauge::DB::Schema');
 
 my $time = $schema->table('Dimension::Time');
+isa_ok($time, 'Source::Gauge::DB::Schema::Dimension::Time');
+
 my $date = $schema->table('Dimension::Date');
+isa_ok($date, 'Source::Gauge::DB::Schema::Dimension::Date');
 
-
-#$time->generate_csv_data( \*STDOUT );
-$date->generate_csv_data( \*STDOUT, ( start => 2014, end => 2020 ) );
+# $time->generate_csv_data( \*STDOUT );
+# $date->generate_csv_data( \*STDOUT, ( start => 2014, end => 2020 ) );
 
 done_testing;

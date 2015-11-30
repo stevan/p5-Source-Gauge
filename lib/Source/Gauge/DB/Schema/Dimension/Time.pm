@@ -18,21 +18,7 @@ has '+columns'    => (
     ]]}
 );
 
-sub table_definition {
-    my ($self) = @_;
-    my $table_name = $self->table_name;
-    return qq[
-        CREATE TABLE IF NOT EXISTS `$table_name` (
-            `id`     INT     UNSIGNED NOT NULL AUTO_INCREMENT,
-            `second` TINYINT UNSIGNED NOT NULL,
-            `minute` TINYINT UNSIGNED NOT NULL,
-            `hour`   TINYINT UNSIGNED NOT NULL,
-            PRIMARY KEY(`id`)
-        );
-    ];
-}
-
-sub generate_csv_data {
+sub generate_data_as_csv {
     my ($self, $fh, %opts) = @_;
 
     my $current = DateTime->from_epoch( epoch => 0 );
