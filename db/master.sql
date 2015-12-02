@@ -54,7 +54,8 @@ CREATE TABLE IF NOT EXISTS `sg_commit_author` (
     `id`     INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name`   VARCHAR(255) NOT NULL,
     `email`  VARCHAR(255) NOT NULL,
-    PRIMARY KEY(`id`)
+    PRIMARY KEY(`id`),
+    UNIQUE  KEY `name_and_email` (`name`, `email`)
 );
 
 -- ------------------------------------------------------------------
