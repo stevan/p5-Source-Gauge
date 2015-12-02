@@ -1,7 +1,13 @@
 
+-- ------------------------------------------------------------------
+-- BEGIN Source::Gauge schema defintion
+-- ------------------------------------------------------------------
 
+-- ----------------------------------------------
+-- Date/Time dimensions
+-- ----------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `$table_name` (
+CREATE TABLE IF NOT EXISTS `sg_time_dimension` (
     `id`     INT     UNSIGNED NOT NULL AUTO_INCREMENT,
     `second` TINYINT UNSIGNED NOT NULL,
     `minute` TINYINT UNSIGNED NOT NULL,
@@ -9,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `$table_name` (
     PRIMARY KEY(`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `$table_name` (
+CREATE TABLE IF NOT EXISTS `sg_date_dimension` (
     `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `day`            INT UNSIGNED NOT NULL,
     `month`          INT UNSIGNED NOT NULL,
@@ -26,3 +32,6 @@ CREATE TABLE IF NOT EXISTS `$table_name` (
     PRIMARY KEY(`id`)
 );
 
+-- ------------------------------------------------------------------
+-- END Source::Gauge schema defintion
+-- ------------------------------------------------------------------
