@@ -24,6 +24,34 @@ has '+columns'    => (
     ]]}
 );
 
+## ----------------------------------------------
+
+sub select_by_sha {
+    my ($self, $sha) = @_;
+    $self->select(
+        columns => ['sha'],
+        join    => [
+            {
+                source  => 'sg_commit_author',
+                columns => [ 'name', 'email' ],
+                on      => [ 'sg_commit.author_id' => { -col => 'sg_commit_author.id' } ]
+            },
+            {
+                source  => 'sg_date_dimension',
+                columns => [ 'year', 'month', 'day' ],
+                on      => [ 'sg_commit.date_id' => { -col => 'sg_date_dimension.id' } ]
+            },
+            {
+                source  => 'sg_time_dimension',
+                columns => [ 'hour', 'minute', 'second' ],
+                on      => [ 'sg_commit.time_id' => { -col => 'sg_time_dimension.id' } ]
+            }
+        ]
+    );
+}
+
+## ----------------------------------------------
+
 sub extract_commmit_range {
     my ($self, %opts) = @_;
 
