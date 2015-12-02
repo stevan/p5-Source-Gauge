@@ -1,24 +1,20 @@
 #!/usr/bin/perl
 
+use lib 't/lib';
+
 use strict;
 use warnings;
 
 use Test::More;
 use Data::Dumper;
 
-use DBI;
+use Util;
 
 BEGIN {
     use_ok('Source::Gauge::DB::Schema');
 }
 
-my $DBH = DBI->connect(
-    ('dbi:mysql:database=sg;host=localhost', '', ''),
-    {
-        PrintError => 0,
-        RaiseError => 1,
-    }
-);
+my $DBH = Util::get_dbh; # nothing useful for now
 
 my $schema = Source::Gauge::DB::Schema->new( dbh => { rw => $DBH } );
 isa_ok($schema, 'Source::Gauge::DB::Schema');
@@ -29,7 +25,10 @@ isa_ok($time, 'Source::Gauge::DB::Schema::Dimension::Time');
 my $date = $schema->table('Dimension::Date');
 isa_ok($date, 'Source::Gauge::DB::Schema::Dimension::Date');
 
-# $time->generate_csv_data( \*STDOUT );
-# $date->generate_csv_data( \*STDOUT, ( start => 2014, end => 2020 ) );
+my $commit = $schema->table('Commit');
+isa_ok($commit, 'Source::Gauge::DB::Schema::Commit');
+
+my $author = $schema->table('Commit::Author');
+isa_ok($author, 'Source::Gauge::DB::Schema::Commit::Author');
 
 done_testing;
