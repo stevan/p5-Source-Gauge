@@ -11,6 +11,10 @@
 --
 -- ------------------------------------------------------------------
 
+BEGIN WORK;
+
+DELETE FROM `sg_time_dimension`;
+
 LOAD DATA
     LOCAL INFILE 'db/data/sg_time_dimension.csv'
     INTO  TABLE `sg_time_dimension`
@@ -23,6 +27,8 @@ LOAD DATA
     minute,
     second
 );
+
+DELETE FROM `sg_date_dimension`;
 
 LOAD DATA
     LOCAL INFILE 'db/data/sg_date_dimension.csv'
@@ -44,6 +50,8 @@ LOAD DATA
     is_leap_year,
     is_dst
 );
+
+COMMIT;
 
 -- ------------------------------------------------------------------
 -- END loading the Date and Time dimension tables
