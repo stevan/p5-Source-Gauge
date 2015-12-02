@@ -75,7 +75,7 @@ sub run {
 
         my $commit = SQL::Combine::Action::Create::One->new(
             schema => $SG,
-            query  => $Commit->insert(
+            query  => $Commit->upsert(
                 values => [
                     sha       => $commit->{sha},
                     author_id => $author->{id},

@@ -47,7 +47,8 @@ CREATE TABLE IF NOT EXISTS `sg_commit` (
     `author_id` INT UNSIGNED NOT NULL,
     `date_id`   INT UNSIGNED NOT NULL,
     `time_id`   INT UNSIGNED NOT NULL,
-    PRIMARY KEY(`id`)
+    PRIMARY KEY(`id`),
+    UNIQUE  KEY `uniq_sha` (`sha`)
 );
 
 CREATE TABLE IF NOT EXISTS `sg_commit_author` (
