@@ -19,6 +19,18 @@ has '+columns'    => (
     ]]}
 );
 
+sub select_id_by_datetime {
+    my ($self, $datetime, @additional_columns) = @_;
+    return $self->select(
+        columns => [ $self->primary_key, @additional_columns ],
+        where   => [
+            second => $datetime->second,
+            minute => $datetime->minute,
+            hour   => $datetime->hour,
+        ]
+    );
+}
+
 sub generate_data_as_csv {
     my ($self, %opts) = @_;
 
