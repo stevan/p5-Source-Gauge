@@ -31,6 +31,22 @@ CREATE TABLE IF NOT EXISTS `sg_date_dimension` (
     PRIMARY KEY(`id`)
 );
 
+-- ----------------------------------------------
+-- Commits
+-- ----------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `sg_commit` (
+    `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `author_id` INT UNSIGNED  NOT NULL,
+    `date_id`   INT UNSIGNED NOT NULL,
+    `time_id`   INT UNSIGNED NOT NULL,
+    PRIMARY KEY(`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `sg_commit_author` (
+    `id`     INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`   VARCHAR(255) NOT NULL,
+    `email`  VARCHAR(255) NOT NULL,
     PRIMARY KEY(`id`)
 );
 
