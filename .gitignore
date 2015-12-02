@@ -7,3 +7,5 @@ nytprof*
 Makefile
 Makefile.old
 cover_db
+db/data/sg_date_dimension.csv
+db/data/sg_time_dimension.csv
