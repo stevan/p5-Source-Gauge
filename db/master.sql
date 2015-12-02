@@ -3,6 +3,12 @@
 -- BEGIN Source::Gauge schema defintion
 -- ------------------------------------------------------------------
 
+DROP DATABASE IF EXISTS `sg`;
+
+CREATE DATABASE `sg`;
+
+USE `sg`;
+
 -- ----------------------------------------------
 -- Date/Time dimensions
 -- ----------------------------------------------
