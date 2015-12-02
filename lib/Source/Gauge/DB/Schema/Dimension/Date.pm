@@ -27,8 +27,6 @@ has '+columns'    => (
 
         is_leap_year
         is_dst
-
-        epoch
     ]]}
 );
 

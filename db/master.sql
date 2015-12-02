@@ -28,7 +28,9 @@ CREATE TABLE IF NOT EXISTS `sg_date_dimension` (
     `week_of_year`   INT UNSIGNED NOT NULL,
     `is_leap_year`   BOOL         NOT NULL,
     `is_dst`         BOOL         NOT NULL,
-    `epoch`          INT UNSIGNED NOT NULL,
+    PRIMARY KEY(`id`)
+);
+
     PRIMARY KEY(`id`)
 );
 
