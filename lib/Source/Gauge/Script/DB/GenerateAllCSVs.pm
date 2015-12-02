@@ -7,9 +7,7 @@ use DateTime::Format::Strptime;
 use Source::Gauge::DB::Schema::Dimension::Time;
 use Source::Gauge::DB::Schema::Dimension::Date;
 
-with 'MooseX::Getopt';
-
-has 'verbose' => ( is => 'ro', isa => 'Bool', default => 0 );
+with 'Source::Gauge::Script';
 
 has 'dir' => (
     is       => 'ro',
@@ -20,12 +18,6 @@ has 'dir' => (
 
 has 'start_date' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'end_date'   => ( is => 'ro', isa => 'Str', predicate => 'has_end_date' );
-
-sub log {
-    my ($self, $fmt, @rest) = @_;
-    return unless $self->verbose;
-    print STDERR (sprintf $fmt => @rest), "\n";
-}
 
 sub run {
     my $self = shift;
