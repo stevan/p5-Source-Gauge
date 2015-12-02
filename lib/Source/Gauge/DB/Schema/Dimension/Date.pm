@@ -2,6 +2,7 @@ package Source::Gauge::DB::Schema::Dimension::Date;
 use Moose;
 
 use DateTime;
+use Text::CSV_XS;
 
 extends 'SQL::Combine::Table';
 
@@ -32,17 +33,23 @@ has '+columns'    => (
 );
 
 sub generate_data_as_csv {
-    my ($self, $fh, %opts) = @_;
+    my ($self, %opts) = @_;
 
-    my $start_year = $opts{'start'} // die 'You must specify a `start` year';
-    my $end_year   = $opts{'end'}   // die 'You must specify a `end` year';
+    my $fh    = $opts{fh}    // \*STDOUT;
+    my $start = $opts{start} // confess 'You must specify a `start` date';
+    my $end   = $opts{end}   // DateTime->now;
 
-    my $current = DateTime->from_day_of_year( year => $start_year, day_of_year => 1 );
+    # TODO:
+    # check that start date is before end date
+
+    my $csv     = Text::CSV_XS->new ({ binary => 1, eol => $/ });
+    my $current = $start;
     my $count   = 0;
 
-    while ( $current->year <= $end_year ) {
-        print $fh (
-            join ',' =>
+    while ( $current <= $end ) {
+        $csv->print(
+            $fh,
+            [
                 $current->day,
                 $current->month,
                 $current->year,
@@ -54,9 +61,8 @@ sub generate_data_as_csv {
                 $current->week_number,
                 $current->is_leap_year,
                 $current->is_dst,
-                $current->epoch,
-            ), "\n"
-        ;
+            ]
+        );
         $current->add( days => 1 );
         $count++;
     }

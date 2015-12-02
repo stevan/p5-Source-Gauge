@@ -2,6 +2,7 @@ package Source::Gauge::DB::Schema::Dimension::Time;
 use Moose;
 
 use DateTime;
+use Text::CSV_XS;
 
 extends 'SQL::Combine::Table';
 
@@ -19,20 +20,24 @@ has '+columns'    => (
 );
 
 sub generate_data_as_csv {
-    my ($self, $fh, %opts) = @_;
+    my ($self, %opts) = @_;
 
+    my $fh = $opts{fh} // \*STDOUT;
+
+    my $csv     = Text::CSV_XS->new ({ binary => 1, eol => $/ });
     my $current = DateTime->from_epoch( epoch => 0 );
     my $today   = $current->day;
     my $count   = 0;
 
     while ( $current->day == $today ) {
-        print $fh (
-            join ',' =>
+        $csv->print(
+            $fh,
+            [
                 $current->hour,
                 $current->minute,
                 $current->second,
-            ), "\n"
-        ;
+            ]
+        );
         $current->add( seconds => 1 );
         $count++;
     }
