@@ -29,23 +29,38 @@ has '+columns'    => (
 
 sub select_by_sha {
     my ($self, $sha) = @_;
+    my $schema = $self->schema;
+
+    my $Author = $schema->table('Commit::Author');
+    my $Date   = $schema->table('Dimension::Date');
+    my $Time   = $schema->table('Dimension::Time');
+
     $self->select(
-        columns => ['sha'],
+        columns => ['sha', 'message'],
         join    => [
             {
-                source  => 'sg_commit_author',
-                columns => [ 'name', 'email' ],
-                on      => [ 'sg_commit.author_id' => { -col => 'sg_commit_author.id' } ]
+                source  => $Author->table_name,
+                columns => $Author->columns,
+                on      => [
+                    $self->fully_qualify_column_name('author_id')
+                        => { -col => $Author->fully_qualify_primary_key }
+                ]
             },
             {
-                source  => 'sg_date_dimension',
+                source  => $Date->table_name,
                 columns => [ 'year', 'month', 'day' ],
-                on      => [ 'sg_commit.date_id' => { -col => 'sg_date_dimension.id' } ]
+                on      => [
+                    $self->fully_qualify_column_name('date_id')
+                        => { -col => $Date->fully_qualify_primary_key }
+                ]
             },
             {
-                source  => 'sg_time_dimension',
-                columns => [ 'hour', 'minute', 'second' ],
-                on      => [ 'sg_commit.time_id' => { -col => 'sg_time_dimension.id' } ]
+                source  => $Time->table_name,
+                columns => $Time->columns,
+                on      => [
+                    $self->fully_qualify_column_name('date_id')
+                        => { -col => $Time->fully_qualify_primary_key }
+                ]
             }
         ]
     );
