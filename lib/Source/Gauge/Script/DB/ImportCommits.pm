@@ -5,6 +5,7 @@ use MooseX::Types::Path::Class;
 
 use SQL::Combine::Action::Create::One;
 use SQL::Combine::Action::Fetch::One;
+use SQL::Combine::Action::Fetch::One::OrCreate;
 
 with 'Source::Gauge::Script::DB';
 
@@ -35,7 +36,7 @@ sub run {
 
     $ENV{SQL_COMBINE_DEBUG_SHOW_SQL}++ if $self->verbose;
 
-    foreach my $commit ( @$commits ) {
+    foreach my $commit ( reverse @$commits ) {
 
         my $date = SQL::Combine::Action::Fetch::One->new(
             schema => $SG,
@@ -47,10 +48,7 @@ sub run {
             query  => $Time->select_id_by_datetime( $commit->{date} )
         )->execute;
 
-        # TODO:
-        # Need a Find Or Create Action
-        # - SL
-        my $author = SQL::Combine::Action::Fetch::One->new(
+        my $author = SQL::Combine::Action::Fetch::One::OrCreate->new(
             schema => $SG,
             query  => $Author->select(
                 columns => [ 'id' ],
@@ -58,11 +56,8 @@ sub run {
                     name  => $commit->{author}->{name},
                     email => $commit->{author}->{email}
                 ]
-            )
-        )->execute;
-
-        unless ( $author ) {
-            $author = SQL::Combine::Action::Create::One->new(
+            ),
+            or_create => SQL::Combine::Action::Create::One->new(
                 schema => $SG,
                 query  => $Author->insert(
                     values => [
@@ -70,8 +65,8 @@ sub run {
                         email => $commit->{author}->{email}
                     ]
                 )
-            )->execute;
-        }
+            )
+        )->execute;
 
         my $commit = SQL::Combine::Action::Create::One->new(
             schema => $SG,
