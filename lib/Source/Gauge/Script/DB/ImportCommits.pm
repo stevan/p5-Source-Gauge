@@ -5,7 +5,7 @@ use MooseX::Types::Path::Class;
 
 use SQL::Combine::Action::Create::One;
 use SQL::Combine::Action::Fetch::One;
-use SQL::Combine::Action::Fetch::One::OrCreate;
+use SQL::Combine::Action::Fetch::One::OrCreateOne;
 
 with 'Source::Gauge::Script::DB';
 
@@ -48,7 +48,7 @@ sub run {
             query  => $Time->select_id_by_datetime( $commit->{date} )
         )->execute;
 
-        my $author = SQL::Combine::Action::Fetch::One::OrCreate->new(
+        my $author = SQL::Combine::Action::Fetch::One::OrCreateOne->new(
             schema => $SG,
             query  => $Author->select(
                 columns => [ 'id' ],
