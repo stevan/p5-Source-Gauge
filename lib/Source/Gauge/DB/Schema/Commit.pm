@@ -17,8 +17,9 @@ has '+columns'    => (
         id
 
         sha
-        author
+        message
 
+        author_id
         date_id
         time_id
     ]]}
@@ -178,14 +179,11 @@ sub _extract_single_commit {
 
             # build our commit object ...
             push @commits => {
-                sha    => $sha,
-                author => {
-                    name  => $author_name,
-                    email => $author_email
-                },
-                date   => $author_date,
-                body   => \@body,
-                files  => \@files,
+                sha     => $sha,
+                author  => { name => $author_name, email => $author_email },
+                date    => $author_date,
+                message => \@body,
+                files   => \@files,
             };
         }
         else {

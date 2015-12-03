@@ -78,6 +78,7 @@ sub run {
             query  => $Commit->upsert(
                 values => [
                     sha       => $commit->{sha},
+                    message   => (join "\n" => @{$commit->{message}}),
                     author_id => $author->{id},
                     date_id   => $date->{id},
                     time_id   => $time->{id},

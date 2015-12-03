@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `sg_date_dimension` (
 CREATE TABLE IF NOT EXISTS `sg_commit` (
     `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `sha`       CHAR(40)     NOT NULL,
+    `message`   TEXT         NOT NULL,
     `author_id` INT UNSIGNED NOT NULL,
     `date_id`   INT UNSIGNED NOT NULL,
     `time_id`   INT UNSIGNED NOT NULL,
