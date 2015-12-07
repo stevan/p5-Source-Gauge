@@ -33,6 +33,11 @@ sub count_descendants {
     )
 }
 
+sub fully_qualify_closure_table_column_name {
+    my ($self, $column_name) = @_;
+    return join '.' => ( $self->closure_table_name, $column_name );
+}
+
 sub select_descendants {
     my ($self, $id) = @_;
 
@@ -42,12 +47,12 @@ sub select_descendants {
     );
 
     my @join_clause = (
-        ($self->closure_table_name.'.descendant'),
+        $self->fully_qualify_closure_table_column_name('descendant'),
         $self->fully_qualify_column_name('id'),
     );
 
     my @where_clause = (
-        ($self->closure_table_name.'.ancestor'),
+        $self->fully_qualify_closure_table_column_name('ancestor'),
         '?'
     );
 
@@ -56,8 +61,8 @@ sub select_descendants {
             'SELECT ' . (join ', ' => @columns)
           . '  FROM ' . $self->table_name
           . '  JOIN ' . $self->closure_table_name
-          . '    ON ' . (join '=' => @join_clause)
-          . ' WHERE ' . (join '=' => @where_clause)
+          . '    ON ' . (join ' = ' => @join_clause)
+          . ' WHERE ' . (join ' = ' => @where_clause)
         ),
         bind         => [ $id ],
         table_name   => $self->table_name,
