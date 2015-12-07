@@ -7,6 +7,8 @@ use Source::Gauge::DB::Schema::Commit::Author;
 use Source::Gauge::DB::Schema::Dimension::Time;
 use Source::Gauge::DB::Schema::Dimension::Date;
 
+use Source::Gauge::DB::Schema::FileSystem;
+
 extends 'SQL::Combine::Schema';
 
 has '+name'   => ( default => 'sg' );
@@ -17,6 +19,7 @@ has '+tables' => (
             Source::Gauge::DB::Schema::Commit::Author->new,
             Source::Gauge::DB::Schema::Dimension::Time->new,
             Source::Gauge::DB::Schema::Dimension::Date->new,
+            Source::Gauge::DB::Schema::FileSystem->new,
         ]
     }
 );

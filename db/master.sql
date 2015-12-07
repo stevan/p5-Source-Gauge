@@ -65,6 +65,22 @@ CREATE TABLE IF NOT EXISTS `sg_commit_author` (
     UNIQUE  KEY `name_and_email` (`name`, `email`)
 );
 
+-- ----------------------------------------------
+-- FileSystem
+-- ----------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `sg_filesystem` (
+    `id`   INT UNSIGNED NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `sg_filesystem_tree` (
+    `ancestor`   INT UNSIGNED NOT NULL,
+    `descendant` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`ancestor`, `descendant`)
+);
+
 -- ==================================================================
 -- END Source::Gauge schema defintion
 -- ==================================================================
