@@ -19,6 +19,11 @@ has 'closure_table_name' => (
     default => 'sg_filesystem_path'
 );
 
+sub fully_qualify_closure_table_column_name {
+    my ($self, $column_name) = @_;
+    return join '.' => ( $self->closure_table_name, $column_name );
+}
+
 sub count_descendants {
     my ($self, $id) = @_;
     return SQL::Combine::Query::Select::RawSQL->new(
@@ -31,11 +36,6 @@ sub count_descendants {
             return +{ count => $row->[0] }
         }
     )
-}
-
-sub fully_qualify_closure_table_column_name {
-    my ($self, $column_name) = @_;
-    return join '.' => ( $self->closure_table_name, $column_name );
 }
 
 sub select_descendants {
