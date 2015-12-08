@@ -16,7 +16,7 @@ BEGIN WORK;
 DELETE FROM `sg_time_dimension`;
 
 LOAD DATA
-    LOCAL INFILE 'db/data/sg_time_dimension.csv'
+    LOCAL INFILE 'db/data/time_dimension.csv'
     INTO  TABLE `sg_time_dimension`
 
     FIELDS     TERMINATED BY ','
@@ -31,7 +31,7 @@ LOAD DATA
 DELETE FROM `sg_date_dimension`;
 
 LOAD DATA
-    LOCAL INFILE 'db/data/sg_date_dimension.csv'
+    LOCAL INFILE 'db/data/date_dimension.csv'
     INTO  TABLE `sg_date_dimension`
 
     FIELDS     TERMINATED BY ','

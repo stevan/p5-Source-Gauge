@@ -2,7 +2,6 @@ package Source::Gauge::DB::Schema::Dimension::Time;
 use Moose;
 
 use DateTime;
-use Text::CSV_XS;
 
 extends 'SQL::Combine::Table';
 
@@ -29,32 +28,6 @@ sub select_id_by_datetime {
             hour   => $datetime->hour,
         ]
     );
-}
-
-sub generate_data_as_csv {
-    my ($self, %opts) = @_;
-
-    my $fh = $opts{fh} // \*STDOUT;
-
-    my $csv     = Text::CSV_XS->new ({ binary => 1, eol => $/ });
-    my $current = DateTime->from_epoch( epoch => 0 );
-    my $today   = $current->day;
-    my $count   = 0;
-
-    while ( $current->day == $today ) {
-        $csv->print(
-            $fh,
-            [
-                $current->hour,
-                $current->minute,
-                $current->second,
-            ]
-        );
-        $current->add( seconds => 1 );
-        $count++;
-    }
-
-    return $count;
 }
 
 __PACKAGE__->meta->make_immutable;
