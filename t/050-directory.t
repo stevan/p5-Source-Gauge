@@ -26,7 +26,7 @@ isa_ok($fs, 'Source::Gauge::DB::Schema::FileSystem');
 
 my $c = SQL::Combine::Action::Fetch::Many->new(
     schema   => $schema,
-    query    => $fs->select_descendants( 3 )
+    query    => $fs->select_all_descendants( 3 )
 )->execute;
 
 warn Dumper $c;

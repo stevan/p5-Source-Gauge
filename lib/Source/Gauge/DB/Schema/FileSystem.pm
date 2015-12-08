@@ -50,7 +50,7 @@ sub count_descendants {
     )
 }
 
-sub select_descendants {
+sub select_all_descendants {
     my ($self, $id) = @_;
 
     my @columns = (
