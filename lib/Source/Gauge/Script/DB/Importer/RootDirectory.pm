@@ -34,29 +34,23 @@ sub run {
 
     $ENV{SQL_COMBINE_DEBUG_SHOW_SQL}++ if $self->verbose;
 
-    my $fs_table_query = SQL::Combine::Action::Create::Many->new(
+    SQL::Combine::Action::Create::Many->new(
         schema  => $SG,
         queries => [
-            map $FileSystem->insert(
+            (map $FileSystem->insert(
                 values => [
                     id        => $_->[0],
                     name      => $_->[1],
                     is_file   => $_->[2],
                     parent_id => $_->[3],
                 ]
-            ), @$fs_table
-        ]
-    )->execute;
-
-    my $fs_table_path_query = SQL::Combine::Action::Create::Many->new(
-        schema  => $SG,
-        queries => [
-            map $FileSystem->insert_into_closure_table(
+            ), @$fs_table),
+            (map $FileSystem->insert_into_closure_table(
                 values => [
                     ancestor   => $_->[0],
                     descendant => $_->[1],
                 ]
-            ), @$fs_table_path
+            ), @$fs_table_path)
         ]
     )->execute;
 }
