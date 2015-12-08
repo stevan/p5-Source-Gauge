@@ -70,9 +70,10 @@ CREATE TABLE IF NOT EXISTS `sg_commit_author` (
 -- ----------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `sg_filesystem` (
-    `id`      INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name`    VARCHAR(255) NOT NULL,
-    `is_file` BOOL         NOT NULL,
+    `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`      VARCHAR(255) NOT NULL,
+    `is_file`   BOOL         NOT NULL,
+    `parent_id` INT UNSIGNED, -- null parent is the root
     PRIMARY KEY (`id`)
 );
 

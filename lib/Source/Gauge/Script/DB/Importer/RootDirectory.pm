@@ -39,9 +39,10 @@ sub run {
         queries => [
             map $FileSystem->insert(
                 values => [
-                    id      => $_->[0],
-                    name    => $_->[1],
-                    is_file => $_->[2],
+                    id        => $_->[0],
+                    name      => $_->[1],
+                    is_file   => $_->[2],
+                    parent_id => $_->[3],
                 ]
             ), @$fs_table
         ]
@@ -80,7 +81,7 @@ sub extract_filesystem {
             } => $current_id;
         }
 
-        push @fs_table => [ $current_id++, $node->basename, (-f $node ? 1 : 0) ];
+        push @fs_table => [ $current_id++, $node->basename, (-f $node ? 1 : 0), $stack[-1] ];
         push @stack    => $fs_table[-1]->[0];
 
         if ( -d $node ) {

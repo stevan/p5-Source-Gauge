@@ -11,6 +11,7 @@ has '+columns'    => (
         id
         name
         is_file
+        parent_id
     ]]}
 );
 
@@ -56,6 +57,7 @@ sub select_descendants {
         $self->fully_qualify_column_name('id'),
         $self->fully_qualify_column_name('name'),
         $self->fully_qualify_column_name('is_file'),
+        $self->fully_qualify_column_name('parent_id'),
     );
 
     my @join_clause = (
@@ -82,24 +84,25 @@ sub select_descendants {
         row_inflator => sub {
             my ($row) = @_;
             return +{
-                id      => $row->[0],
-                name    => $row->[1],
-                is_file => $row->[2],
+                id        => $row->[0],
+                name      => $row->[1],
+                is_file   => $row->[2],
+                parent_id => $row->[3],
             }
         }
     )
 }
 
 sub insert_descendant {
-    my ($self, $parent_id, $name) = @_;
+    my ($self, %opts) = @_;
 
 =pod
     -- adding 8
 
-    INSERT INTO `sg_filesystem`
-        (`id`, `name`)
+    my $id = INSERT INTO `sg_filesystem`
+        (`name`, `is_file`, `parent_id`)
         VALUES
-            (SELECT MAX('id') FROM `sg_filesystem`), $name);
+            ($opts{name}, ($opts{is_file} ? 1 : 0), $opts{parent_id});
 
     -- adding 8 under 6
 
