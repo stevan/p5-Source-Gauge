@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `sg_filesystem` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `sg_filesystem_tree` (
+CREATE TABLE IF NOT EXISTS `sg_filesystem_path` (
     `ancestor`   INT UNSIGNED NOT NULL,
     `descendant` INT UNSIGNED NOT NULL,
     PRIMARY KEY (`ancestor`, `descendant`)
