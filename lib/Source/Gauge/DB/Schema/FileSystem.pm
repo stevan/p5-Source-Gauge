@@ -10,6 +10,7 @@ has '+columns'    => (
     default => sub {[qw[
         id
         name
+        is_file
     ]]}
 );
 
@@ -44,6 +45,7 @@ sub select_descendants {
     my @columns = (
         $self->fully_qualify_column_name('id'),
         $self->fully_qualify_column_name('name'),
+        $self->fully_qualify_column_name('is_file'),
     );
 
     my @join_clause = (
@@ -70,11 +72,39 @@ sub select_descendants {
         row_inflator => sub {
             my ($row) = @_;
             return +{
-                id   => $row->[0],
-                name => $row->[1]
+                id      => $row->[0],
+                name    => $row->[1],
+                is_file => $row->[2],
             }
         }
     )
+}
+
+sub insert_descendant {
+    my ($self, $parent_id, $name) = @_;
+
+=pod
+    -- adding 8
+
+    INSERT INTO `sg_filesystem`
+        (`id`, `name`)
+        VALUES
+            (SELECT MAX('id') FROM `sg_filesystem`), $name);
+
+    -- adding 8 under 6
+
+    -- SELECT `ancestor` FROM `sg_filesystem_path` WHERE `descendant` = 6;
+    -- return [1, 3, 6]
+
+    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (1, 8);
+    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (3, 8);
+    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (6, 8);
+
+    -- adding 8 itself
+
+    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (8, 8);
+=cut
+
 }
 
 
@@ -83,3 +113,143 @@ __PACKAGE__->meta->make_immutable;
 no Moose; 1;
 
 __END__
+
+__DATA__
+
+FROM: http://stackoverflow.com/questions/6802539/hierarchical-tree-database-for-directories-in-filesystem
+
+        (ROOT)
+      /        \
+    Dir2        Dir3
+    /    \           \
+  Dir4   Dir5        Dir6
+  /
+Dir7
+
+INSERT INTO sg_filesystem (id, dirname) VALUES (1, 'ROOT');
+INSERT INTO sg_filesystem (id, dirname) VALUES (2, 'Dir2');
+INSERT INTO sg_filesystem (id, dirname) VALUES (3, 'Dir3');
+INSERT INTO sg_filesystem (id, dirname) VALUES (4, 'Dir4');
+INSERT INTO sg_filesystem (id, dirname) VALUES (5, 'Dir5');
+INSERT INTO sg_filesystem (id, dirname) VALUES (6, 'Dir6');
+INSERT INTO sg_filesystem (id, dirname) VALUES (7, 'Dir7');
+
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (1, 1);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (1, 2);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (1, 3);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (1, 4);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (1, 5);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (1, 6);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (1, 7);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (2, 2);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (2, 4);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (2, 5);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (2, 7);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (3, 3);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (3, 6);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (4, 4);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (4, 7);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (5, 5);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (6, 6);
+INSERT INTO sg_filesystem_tree (ancestor, descendant) VALUES (7, 7);
+
+# (ROOT) and subdirectories
+SELECT f.id, f.dirname
+  FROM sg_filesystem f
+  JOIN sg_filesystem_tree t
+    ON t.descendant = f.id
+ WHERE t.ancestor = 1;
+
++----+---------+
+| id | dirname |
++----+---------+
+|  1 | ROOT    |
+|  2 | Dir2    |
+|  3 | Dir3    |
+|  4 | Dir4    |
+|  5 | Dir5    |
+|  6 | Dir6    |
+|  7 | Dir7    |
++----+---------+
+
+
+# Dir3 and subdirectories
+SELECT f.id, f.dirname
+  FROM sg_filesystem f
+  JOIN sg_filesystem_tree t
+    ON t.descendant = f.id
+ WHERE t.ancestor = 3;
+
++----+---------+
+| id | dirname |
++----+---------+
+|  3 | Dir3    |
+|  6 | Dir6    |
++----+---------+
+
+# Dir5 and parent directories
+SELECT f.id, f.dirname
+  FROM sg_filesystem f
+  JOIN sg_filesystem_tree t
+    ON t.ancestor = f.id
+ WHERE t.descendant = 5;
+
++----+---------+
+| id | dirname |
++----+---------+
+|  1 | ROOT    |
+|  2 | Dir2    |
+|  5 | Dir5    |
++----+---------+
+
+# Dir7 and parent directories
+SELECT f.id, f.dirname
+  FROM sg_filesystem f
+  JOIN sg_filesystem_tree t
+    ON t.ancestor = f.id
+ WHERE t.descendant = 7;
+
++----+---------+
+| id | dirname |
++----+---------+
+|  1 | ROOT    |
+|  2 | Dir2    |
+|  4 | Dir4    |
+|  7 | Dir7    |
++----+---------+
+
+# Dir7 and parent directories as a path
+SELECT GROUP_CONCAT(f.dirname, '/') AS path
+  FROM sg_filesystem f
+  JOIN sg_filesystem_tree t
+    ON t.ancestor = f.id
+ WHERE t.descendant = 7;
+
++---------------------+
+| path                |
++---------------------+
+| ROOT/Dir2/Dir4/Dir7 |
++---------------------+
+
+SELECT f.id, f.dirname
+  FROM sg_filesystem f
+  JOIN sg_filesystem_tree t
+    ON t.ancestor = f.id
+ WHERE t.descendant = (
+SELECT id
+  FROM sg_filesystem
+ WHERE dirname LIKE '%7%'
+);
+
++----+---------+
+| id | dirname |
++----+---------+
+|  1 | ROOT    |
+|  2 | Dir2    |
+|  4 | Dir4    |
+|  7 | Dir7    |
++----+---------+
+
+
+
+
