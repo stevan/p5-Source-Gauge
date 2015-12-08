@@ -25,6 +25,16 @@ sub fully_qualify_closure_table_column_name {
     return join '.' => ( $self->closure_table_name, $column_name );
 }
 
+sub insert_into_closure_table {
+    my ($self, %args) = @_;
+    return SQL::Combine::Query::Insert->new(
+        driver      => $self->driver,
+        table_name  => $self->closure_table_name,
+        primary_key => 'ancestor', # fuck it, works for now ...
+        %args,
+    );
+}
+
 sub count_descendants {
     my ($self, $id) = @_;
     return SQL::Combine::Query::Select::RawSQL->new(
