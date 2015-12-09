@@ -15,8 +15,9 @@ sub log {
 }
 
 sub log_data {
-    my ($self, $data) = @_;
-    $self->log('%s', Data::Dumper->new( $data )->Indent(0)->Dump );
+    my ($self, @data) = @_;
+    local $Data::Dumper::Indent = 1;
+    $self->log('%s', Data::Dumper::Dumper( $_ ) ) foreach @data;
 }
 
 no Moose::Role; 1;
