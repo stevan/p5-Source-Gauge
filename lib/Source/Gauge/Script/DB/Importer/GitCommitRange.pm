@@ -36,6 +36,13 @@ sub run {
 
     my $commits = $self->extract_commmit_range;
 
+    $self->log_data( $_ ) foreach reverse @$commits;
+
+    if ($self->dry_run) {
+        $self->log('... returning early because of dry_run');
+        return;
+    }
+
     $ENV{SQL_COMBINE_DEBUG_SHOW_SQL}++ if $self->verbose;
 
     foreach my $commit ( reverse @$commits ) {
