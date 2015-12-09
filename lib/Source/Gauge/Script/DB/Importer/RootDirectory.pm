@@ -32,6 +32,11 @@ sub run {
     $self->log('%s => %s' => @$_) foreach @$fs_table;
     $self->log('%s => %s' => @$_) foreach @$fs_table_path;
 
+    if ($self->dry_run) {
+        $self->log('... returning early because of dry_run');
+        return;
+    }
+
     $ENV{SQL_COMBINE_DEBUG_SHOW_SQL}++ if $self->verbose;
 
     SQL::Combine::Action::Create::Many->new(
