@@ -28,7 +28,7 @@ isa_ok($commit, 'Source::Gauge::DB::Schema::Commit');
 {
     my $c = SQL::Combine::Action::Fetch::One->new(
         schema   => $schema,
-        query    => $commit->select_by_sha('fe1464af1bbe192a04c83c4f6ede996cffe06a3c'),
+        query    => $commit->select_by_sha('1947c5e3cf7003cdbf26f50df109f5dab4dbff10'),
         inflator => sub {
             my $result = $_[0];
             return +{
