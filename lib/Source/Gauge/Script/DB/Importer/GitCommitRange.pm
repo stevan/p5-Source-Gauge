@@ -36,7 +36,7 @@ sub run {
 
     my $commits = $self->extract_commmit_range;
 
-    $self->log_data( $_ ) foreach reverse @$commits;
+    $self->log_data( [ map +{ %$_, date => ''.$_->{date} }, reverse @$commits ] );
 
     if ($self->dry_run) {
         $self->log('... returning early because of dry_run');
@@ -45,16 +45,23 @@ sub run {
 
     $ENV{SQL_COMBINE_DEBUG_SHOW_SQL}++ if $self->verbose;
 
-    foreach my $commit ( reverse @$commits ) {
+    # transaction??
+
+    foreach my $c ( reverse @$commits ) {
+
+        # TODO:
+        # Check to see if we got something back
+        # from these two queries ...
+        # - SL
 
         my $date = SQL::Combine::Action::Fetch::One->new(
             schema => $SG,
-            query  => $Date->select_id_by_datetime( $commit->{date} )
+            query  => $Date->select_id_by_datetime( $c->{date} )
         )->execute;
 
         my $time = SQL::Combine::Action::Fetch::One->new(
             schema => $SG,
-            query  => $Time->select_id_by_datetime( $commit->{date} )
+            query  => $Time->select_id_by_datetime( $c->{date} )
         )->execute;
 
         my $author = SQL::Combine::Action::Fetch::One::OrCreateOne->new(
@@ -62,16 +69,16 @@ sub run {
             query  => $Author->select(
                 columns => [ 'id' ],
                 where   => [
-                    name  => $commit->{author}->{name},
-                    email => $commit->{author}->{email}
+                    name  => $c->{author}->{name},
+                    email => $c->{author}->{email}
                 ]
             ),
             or_create => SQL::Combine::Action::Create::One->new(
                 schema => $SG,
                 query  => $Author->insert(
                     values => [
-                        name  => $commit->{author}->{name},
-                        email => $commit->{author}->{email}
+                        name  => $c->{author}->{name},
+                        email => $c->{author}->{email}
                     ]
                 )
             )
@@ -81,8 +88,8 @@ sub run {
             schema => $SG,
             query  => $Commit->upsert(
                 values => [
-                    sha       => $commit->{sha},
-                    message   => (join "\n" => @{$commit->{message}}),
+                    sha       => $c->{sha},
+                    message   => (join "\n" => @{$c->{message}}),
                     author_id => $author->{id},
                     date_id   => $date->{id},
                     time_id   => $time->{id},
