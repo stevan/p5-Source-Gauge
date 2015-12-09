@@ -90,7 +90,7 @@ sub select_associated_files_by_sha {
     );
 }
 
-sub select_associated_files_by_id {
+sub select_associated_files_by_commit_id {
     my ($self, $id) = @_;
     my $schema = $self->schema;
 

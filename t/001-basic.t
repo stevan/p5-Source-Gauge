@@ -45,7 +45,7 @@ isa_ok($commit, 'Source::Gauge::DB::Schema::Commit');
             schema   => $schema,
             query    => sub {
                 my ($result) = @_;
-                $commit->select_associated_files_by_id( $result->{id} )
+                $commit->select_associated_files_by_commit_id( $result->{id} )
             },
             inflator => sub {
                 my ($results) = @_;
