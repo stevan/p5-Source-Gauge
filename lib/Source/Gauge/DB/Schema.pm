@@ -3,6 +3,7 @@ use Moose;
 
 use Source::Gauge::DB::Schema::Commit;
 use Source::Gauge::DB::Schema::Commit::Author;
+use Source::Gauge::DB::Schema::Commit::File;
 
 use Source::Gauge::DB::Schema::Dimension::Time;
 use Source::Gauge::DB::Schema::Dimension::Date;
@@ -17,6 +18,7 @@ has '+tables' => (
         return +[
             Source::Gauge::DB::Schema::Commit->new,
             Source::Gauge::DB::Schema::Commit::Author->new,
+            Source::Gauge::DB::Schema::Commit::File->new,
             Source::Gauge::DB::Schema::Dimension::Time->new,
             Source::Gauge::DB::Schema::Dimension::Date->new,
             Source::Gauge::DB::Schema::FileSystem->new,

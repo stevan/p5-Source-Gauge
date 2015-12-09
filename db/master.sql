@@ -65,6 +65,16 @@ CREATE TABLE IF NOT EXISTS `sg_commit_author` (
     UNIQUE  KEY `name_and_email` (`name`, `email`)
 );
 
+CREATE TABLE IF NOT EXISTS `sg_commit_file` (
+    `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `commit_id` INT UNSIGNED NOT NULL,
+    `file_id`   INT UNSIGNED NOT NULL,
+    `added`     INT UNSIGNED NOT NULL,
+    `removed`   INT UNSIGNED NOT NULL,
+    PRIMARY KEY(`id`),
+    UNIQUE  KEY `commit_and_file` (`commit_id`, `file_id`)
+);
+
 -- ----------------------------------------------
 -- FileSystem
 -- ----------------------------------------------
