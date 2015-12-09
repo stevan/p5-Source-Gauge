@@ -59,6 +59,60 @@ sub select_by_sha {
     );
 }
 
+sub select_associated_files_by_sha {
+    my ($self, $sha) = @_;
+    my $schema = $self->schema;
+
+    my $File       = $schema->table('Commit::File');
+    my $FileSystem = $schema->table('FileSystem');
+
+    $File->select(
+        columns => [ 'id', 'added', 'removed' ],
+        where   => [ $self->fully_qualify_column_name('sha') => $sha ],
+        join    => [
+            {
+                source  => $self->table_name,
+                columns => ['sha'],
+                on      => [
+                    $File->fully_qualify_column_name('commit_id')
+                        => { -col => $self->fully_qualify_column_name('id') },
+                ]
+            },
+            {
+                source  => $FileSystem->table_name,
+                columns => $FileSystem->columns,
+                on      => [
+                    $File->fully_qualify_column_name('file_id')
+                        => { -col => $FileSystem->fully_qualify_primary_key }
+                ]
+            }
+        ]
+    );
+}
+
+sub select_associated_files_by_id {
+    my ($self, $id) = @_;
+    my $schema = $self->schema;
+
+    my $File       = $schema->table('Commit::File');
+    my $FileSystem = $schema->table('FileSystem');
+
+    $File->select(
+        columns => [ 'id', 'added', 'removed' ],
+        where   => [ commit_id => $id ],
+        join    => [
+            {
+                source  => $FileSystem->table_name,
+                columns => $FileSystem->columns,
+                on      => [
+                    $File->fully_qualify_column_name('file_id')
+                        => { -col => $FileSystem->fully_qualify_primary_key }
+                ]
+            }
+        ]
+    );
+}
+
 __PACKAGE__->meta->make_immutable;
 
 no Moose; 1;
