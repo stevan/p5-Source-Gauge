@@ -36,6 +36,67 @@ sub insert_into_closure_table {
     );
 }
 
+# Ancestors
+
+sub count_ancestors {
+    my ($self, $id) = @_;
+    return SQL::Combine::Query::Select::RawSQL->new(
+        sql          => 'SELECT COUNT(*) from ' . $self->closure_table_name . ' where descendant = ? and ancestor <> ?',
+        bind         => [ $id, $id ],
+        table_name   => $self->closure_table_name,
+        driver       => $self->driver,
+        row_inflator => sub {
+            my ($row) = @_;
+            return +{ count => $row->[0] }
+        }
+    )
+}
+
+sub select_node_and_all_ancestors {
+    my ($self, $id) = @_;
+
+    my @columns = (
+        $self->fully_qualify_column_name('id'),
+        $self->fully_qualify_column_name('name'),
+        $self->fully_qualify_column_name('is_file'),
+        $self->fully_qualify_column_name('parent_id'),
+    );
+
+    my @join_clause = (
+        $self->fully_qualify_closure_table_column_name('ancestor'),
+        $self->fully_qualify_column_name('id'),
+    );
+
+    my @where_clause = (
+        $self->fully_qualify_closure_table_column_name('descendant'),
+        '?'
+    );
+
+    return SQL::Combine::Query::Select::RawSQL->new(
+        sql => (
+            'SELECT ' . (join ', ' => @columns)
+          . '  FROM ' . $self->table_name
+          . '  JOIN ' . $self->closure_table_name
+          . '    ON ' . (join ' = ' => @join_clause)
+          . ' WHERE ' . (join ' = ' => @where_clause)
+        ),
+        bind         => [ $id ],
+        table_name   => $self->table_name,
+        driver       => $self->driver,
+        row_inflator => sub {
+            my ($row) = @_;
+            return +{
+                id        => $row->[0],
+                name      => $row->[1],
+                is_file   => $row->[2],
+                parent_id => $row->[3],
+            }
+        }
+    )
+}
+
+# Descendants
+
 sub count_descendants {
     my ($self, $id) = @_;
     return SQL::Combine::Query::Select::RawSQL->new(
@@ -50,7 +111,7 @@ sub count_descendants {
     )
 }
 
-sub select_all_descendants {
+sub select_node_and_all_descendants {
     my ($self, $id) = @_;
 
     my @columns = (
