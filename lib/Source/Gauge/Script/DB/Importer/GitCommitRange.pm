@@ -9,6 +9,8 @@ use DateTime::TimeZone::UTC;
 use DateTime::Format::Strptime;
 
 use SQL::Combine::Action::Create::One;
+use SQL::Combine::Action::Create::Many;
+
 use SQL::Combine::Action::Fetch::One;
 use SQL::Combine::Action::Fetch::One::OrCreateOne;
 
@@ -28,11 +30,13 @@ has 'offset' => ( is => 'ro', isa => 'Int', predicate => 'has_offset' );
 sub run {
     my $self = shift;
 
-    my $SG     = $self->schema;
-    my $Commit = $SG->table('Commit')          // die 'Cannot find `Commit` table';
-    my $Author = $SG->table('Commit::Author')  // die 'Cannot find `Commit::Author` table';
-    my $Date   = $SG->table('Dimension::Date') // die 'Cannot find `Dimension::Date` table';
-    my $Time   = $SG->table('Dimension::Time') // die 'Cannot find `Dimension::Time` table';
+    my $SG         = $self->schema;
+    my $Commit     = $SG->table('Commit')          // die 'Cannot find `Commit` table';
+    my $Author     = $SG->table('Commit::Author')  // die 'Cannot find `Commit::Author` table';
+    my $File       = $SG->table('Commit::File')    // die 'Cannot find `Commit::File` table';
+    my $Date       = $SG->table('Dimension::Date') // die 'Cannot find `Dimension::Date` table';
+    my $Time       = $SG->table('Dimension::Time') // die 'Cannot find `Dimension::Time` table';
+    my $FileSystem = $SG->table('FileSystem')      // die 'Cannot find `FileSystem` table';
 
     my $commits = $self->extract_commmit_range;
 
@@ -96,6 +100,39 @@ sub run {
                 ]
             )
         )->execute;
+
+        if ( my $files = $c->{files} ) {
+            foreach my $file ( @$files ) {
+                my $file_obj  = Path::Class::File->new( delete $file->{path} );
+                my $file_data = SQL::Combine::Action::Fetch::One->new(
+                    schema => $SG,
+                    query  => $FileSystem->select(
+                        columns => ['id'],
+                        where   => [ 'name' => $file_obj->basename ]
+                    )
+                )->execute;
+
+                # TODO:
+                # 1) Check to see if we got something back
+                # 2) Check to see if the path we got back
+                #    matches the one we got
+                # - SL
+
+                $file->{file_id} = $file_data->{id};
+            }
+
+            my $commit_files = SQL::Combine::Action::Create::Many->new(
+                schema  => $SG,
+                queries => [
+                    map $File->insert(
+                        values => [
+                            commit_id => $commit->{id},
+                            %$_
+                        ]
+                    ), grep defined($_->{file_id}), @$files
+                ]
+            )->execute;
+        }
     }
 
     return;
