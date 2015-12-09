@@ -118,3 +118,29 @@ __PACKAGE__->meta->make_immutable;
 no Moose; 1;
 
 __END__
+
+=pod
+
+=head1 QUERIES TO IMPLEMENT
+
+Gets all the commits along with totals for added/removed
+
+    select
+        c.sha,
+        SUM(f.added) as total_added,
+        SUM(f.removed) as total_removed,
+        COUNT(f.id) as total_files
+    from
+        sg_commit as c,
+        sg_commit_file as f
+    where
+        c.id = f.commit_id
+    group by
+        c.id
+    order by
+        total_added desc;
+
+=cut
+
+
+
