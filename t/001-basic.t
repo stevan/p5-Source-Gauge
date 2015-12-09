@@ -9,6 +9,7 @@ use Test::More;
 use Data::Dumper;
 
 use SQL::Combine::Action::Fetch::One;
+use SQL::Combine::Action::Fetch::Many;
 
 use Util;
 
@@ -24,22 +25,42 @@ isa_ok($schema, 'Source::Gauge::DB::Schema');
 my $commit = $schema->table('Commit');
 isa_ok($commit, 'Source::Gauge::DB::Schema::Commit');
 
-my $c = SQL::Combine::Action::Fetch::One->new(
-    schema   => $schema,
-    query    => $commit->select_by_sha('b0e1b3a80b0bddb7cea519f4cc2ba4c0e477c98f'),
-    inflator => sub {
-        my $result = $_[0];
-        return +{
-            sha    => $result->{sha},
-            author => $result->{sg_commit_author},
-            date   => join ' ' => (
-                (join '-', @{ $result->{sg_date_dimension} }{qw[ year month day ]}),
-                (join ':', @{ $result->{sg_time_dimension} }{qw[ hour minute second ]})
-            )
+{
+    my $c = SQL::Combine::Action::Fetch::One->new(
+        schema   => $schema,
+        query    => $commit->select_by_sha('fe1464af1bbe192a04c83c4f6ede996cffe06a3c'),
+        inflator => sub {
+            my $result = $_[0];
+            return +{
+                author => (delete $result->{sg_commit_author}),
+                date   => (join ' ' => (
+                    (join '-', @{ delete $result->{sg_date_dimension} }{qw[ year month day ]}),
+                    (join ':', @{ delete $result->{sg_time_dimension} }{qw[ hour minute second ]})
+                )),
+                (%$result)
+            }
         }
-    }
-)->execute;
+    )->relates_to(
+        files => SQL::Combine::Action::Fetch::Many->new(
+            schema   => $schema,
+            query    => sub {
+                my ($result) = @_;
+                $commit->select_associated_files_by_id( $result->{id} )
+            },
+            inflator => sub {
+                my ($results) = @_;
+                return [
+                    map +{
+                        file => (delete $_->{sg_filesystem}),
+                        %$_
+                    }, @$results
+                ]
+            }
+        )
+    )->execute;
 
-warn Dumper $c;
+    warn Dumper $c;
+}
+
 
 done_testing;
