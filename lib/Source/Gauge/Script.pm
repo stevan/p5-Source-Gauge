@@ -5,6 +5,7 @@ use Data::Dumper ();
 
 with 'MooseX::Getopt';
 
+has 'dry_run' => ( is => 'ro', isa => 'Bool', default => 0 );
 has 'verbose' => ( is => 'ro', isa => 'Bool', default => 0 );
 
 sub log {
