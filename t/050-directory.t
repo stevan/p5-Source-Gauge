@@ -26,7 +26,24 @@ isa_ok($fs, 'Source::Gauge::DB::Schema::FileSystem');
 
 my $c = SQL::Combine::Action::Fetch::Many->new(
     schema   => $schema,
-    query    => $fs->select_all_descendants( 3 )
+    query    => $fs->select_all_descendants( 3 ),
+    inflator => sub {
+        my ($results) = @_;
+        my %index  = map {
+            $_->{children} = [];
+            ($_->{id} => $_)
+        } @$results;
+        my @sorted = sort { $a <=> $b } keys %index;
+        my $root   = $sorted[0];
+        #warn "Got " . join ", " => @sorted;
+        #warn "Got $root";
+        foreach my $key ( @sorted ) {
+            my $item   = $index{ $key };
+            my $parent = $index{ $item->{parent_id} };
+            push @{ $parent->{children} } => $item;
+        }
+        return $index{ $root };
+    }
 )->execute;
 
 warn Dumper $c;
