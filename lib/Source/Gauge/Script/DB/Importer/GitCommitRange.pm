@@ -101,6 +101,8 @@ sub run {
             )
         )->execute;
 
+        next unless $commit->{id}; # upserts have no id, so we can assume files are already added
+
         if ( my $files = $c->{files} ) {
             foreach my $file ( @$files ) {
                 my $file_obj  = Path::Class::File->new( delete $file->{path} );
