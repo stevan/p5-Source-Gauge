@@ -1,8 +1,6 @@
 == TODO:
 
-- Consider moving the CSV generation stuff out of Date/Time tables
-    - this could easily be just moved into the Script::DB::GenerateAllCSVs module
-        - and that could be renamed GenerateDateTimeDimensionDataCSVs or something
+- Do not import directory using the Importer::RootDirectory
+    - import it as part of the GitCommitRange stuff
 
-- Consider moving the git-commit extraction out of Commit table
-    - This can also be more robust perhaps
+
