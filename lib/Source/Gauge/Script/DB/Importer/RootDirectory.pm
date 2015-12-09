@@ -19,7 +19,7 @@ has 'dir' => (
     coerce   => 1,
 );
 
-has 'start_id' => ( is => 'ro', isa => 'Int', default => 1 );
+has 'start_id' => ( is => 'ro', isa => 'Int', default => 0 );
 
 sub run {
     my $self = shift;
@@ -58,6 +58,8 @@ sub run {
             ), @$fs_table_path)
         ]
     )->execute;
+
+    return;
 }
 
 sub extract_filesystem {
@@ -69,19 +71,18 @@ sub extract_filesystem {
     my @fs_table;
     my @fs_table_path;
 
-    my @temp_fs_table_path;
+    my %temp_fs_table_path;
 
     my $traverse = sub {
         my ($node) = @_;
 
-        foreach my $item ( @stack ) {
-            push @{
-                $temp_fs_table_path[ $item - 1 ] //= []
-            } => $current_id;
-        }
-
-        push @fs_table => [ $current_id++, $node->basename, (-f $node ? 1 : 0), $stack[-1] ];
+        push @fs_table => [ ++$current_id, $node->basename, (-f $node ? 1 : 0), $stack[-1] ];
         push @stack    => $fs_table[-1]->[0];
+
+        foreach my $item ( @stack ) {
+            $temp_fs_table_path{ $item } //= [];
+            push @{$temp_fs_table_path{ $item }} => [ $current_id ];
+        }
 
         if ( -d $node ) {
             foreach my $child ( $node->children( no_hidden => 1 ) ) {
@@ -95,9 +96,9 @@ sub extract_filesystem {
 
     $traverse->( $self->dir );
 
-    foreach my $i ( 0 .. $#temp_fs_table_path ) {
-        foreach my $j ( @{ $temp_fs_table_path[ $i ] } ) {
-            push @fs_table_path => [ ($i + 1), $j ]
+    foreach my $i ( sort { $a <=> $b } keys %temp_fs_table_path ) {
+        foreach my $j ( @{ $temp_fs_table_path{ $i } } ) {
+            push @fs_table_path => [ $i, @$j ];
         }
     }
 
