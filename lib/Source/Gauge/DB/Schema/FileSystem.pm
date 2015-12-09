@@ -11,6 +11,7 @@ has '+columns'    => (
         id
         name
         is_file
+        is_deleted
         parent_id
     ]]}
 );

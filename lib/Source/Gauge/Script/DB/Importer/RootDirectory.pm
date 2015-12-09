@@ -44,10 +44,11 @@ sub run {
         queries => [
             (map $FileSystem->insert(
                 values => [
-                    id        => $_->[0],
-                    name      => $_->[1],
-                    is_file   => $_->[2],
-                    parent_id => $_->[3],
+                    id         => $_->[0],
+                    name       => $_->[1],
+                    is_file    => $_->[2],
+                    is_deleted => 0, # clearly these still exist ...
+                    parent_id  => $_->[3],
                 ]
             ), @$fs_table),
             (map $FileSystem->insert_into_closure_table(
