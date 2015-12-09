@@ -28,7 +28,8 @@ sub select_by_sha {
     my $Time   = $schema->table('Dimension::Time');
 
     $self->select(
-        columns => ['sha', 'message'],
+        columns => [ 'id', 'sha', 'message'],
+        where   => [ sha => $sha ],
         join    => [
             {
                 source  => $Author->table_name,
