@@ -1,6 +1,15 @@
 package Source::Gauge::Script::DB::Importer::RootDirectory;
 use Moose;
 
+=pod
+
+NOTE:
+
+This class is probably a bad idea, we actually need to
+import our filesystem data from the git commits.
+
+=cut
+
 use feature 'current_sub';
 
 use MooseX::Types::Path::Class;
