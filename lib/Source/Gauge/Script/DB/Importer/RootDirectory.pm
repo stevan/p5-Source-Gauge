@@ -85,7 +85,18 @@ sub extract_filesystem {
         }
 
         if ( -d $node ) {
-            foreach my $child ( $node->children( no_hidden => 1 ) ) {
+            # TODO:
+            # We need to actually parse the .gitignore file
+            # and then mask off the directory using that
+            # the alternate would be having git somehoe tell
+            # us what we should care about.
+            # - SL
+            foreach my $child ( $node->children ) {
+                # for now we can just do this ugliness
+                next if -d $child && $child->basename =~ /^\./;
+                next if $child->basename eq '.DS_Store';
+
+                # and recurse ...
                 __SUB__->( $child );
             }
         }
