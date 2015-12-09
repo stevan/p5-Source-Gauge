@@ -104,6 +104,12 @@ sub run {
         if ( my $files = $c->{files} ) {
             foreach my $file ( @$files ) {
                 my $file_obj  = Path::Class::File->new( delete $file->{path} );
+
+
+                if ( my $action = delete $file->{action} ) {
+                    # do something about the action
+                }
+
                 my $file_data = SQL::Combine::Action::Fetch::One->new(
                     schema => $SG,
                     query  => $FileSystem->select(
@@ -211,7 +217,8 @@ sub _extract_single_commit {
                 '%H',  # close
             )
         ),
-        '--numstat', # if you remove this, add in -s to supress diff, etc.
+        '--numstat',
+        '--summary',
         @$shas
     );
 
@@ -228,6 +235,8 @@ sub _extract_single_commit {
         # ex: 2015-11-09 00:29:47 +0100
         pattern => '%F %T %z'
     );
+
+    #die join "\n" => @all;
 
     my @commits;
     foreach my $sha ( @$shas ) {
@@ -246,18 +255,26 @@ sub _extract_single_commit {
             shift @all; # discard the closing commit line
 
             # collect all the file details ...
-            my @files;
-            while ( @all && $all[0] !~ /^\s*$/ ) {
+            my %files;
+            while ( @all && $all[0] =~ /^\d+/ ) {
                 my $line = shift @all;
                 my ($added, $removed, $path) = split /\s+/ => $line;
-                push @files => {
+                $files{ $path } = {
                     path    => $path,
                     added   => $added,
                     removed => $removed
                 };
             }
 
-            shift @all; # discard the empty newline
+            while ( @all && $all[0] =~ /^\s[create|delete]/ ) {
+                my $line = shift @all;
+                #warn $line;
+                my ($action, $path) = ($line =~ /^\s(.*) mode \d+ (.*)/);
+                #warn join ", " => $action, $path;
+                $files{ $path }->{action} = $action;
+            }
+
+            shift @all while @all && $all[0] =~ /^\s*$/; # discard the empty newlines
 
             # build our commit object ...
             push @commits => {
@@ -265,7 +282,7 @@ sub _extract_single_commit {
                 author  => { name => $author_name, email => $author_email },
                 date    => $author_date,
                 message => \@body,
-                files   => \@files,
+                files   => [ values %files ],
             };
         }
         else {
