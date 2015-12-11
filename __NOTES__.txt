@@ -7,4 +7,11 @@
 
 == LINKS:
 
+=== Metrics
+
 - https://www.cqse.eu/en/blog/mccabe-cyclomatic-complexity/
+
+=== Closure Table
+
+- http://stackoverflow.com/questions/6802539/hierarchical-tree-database-for-directories-in-filesystem
+- http://www.slideshare.net/billkarwin/models-for-hierarchical-data
