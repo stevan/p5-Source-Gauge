@@ -42,6 +42,9 @@ sub insert_into_closure_table {
 
 sub count_ancestors {
     my ($self, $id) = @_;
+
+    confess 'You must specify an id' unless defined $id;
+
     return SQL::Combine::Query::Select::RawSQL->new(
         sql          => 'SELECT COUNT(*) from ' . $self->closure_table_name . ' where descendant = ? and ancestor <> ?',
         bind         => [ $id, $id ],
@@ -56,6 +59,8 @@ sub count_ancestors {
 
 sub select_node_and_all_ancestors {
     my ($self, $id) = @_;
+
+    confess 'You must specify an id' unless defined $id;
 
     my @columns = (
         $self->fully_qualify_column_name('id'),
@@ -101,6 +106,9 @@ sub select_node_and_all_ancestors {
 
 sub count_descendants {
     my ($self, $id) = @_;
+
+    confess 'You must specify an id' unless defined $id;
+
     return SQL::Combine::Query::Select::RawSQL->new(
         sql          => 'SELECT COUNT(*) from ' . $self->closure_table_name . ' where ancestor = ? and descendant <> ?',
         bind         => [ $id, $id ],
@@ -115,6 +123,8 @@ sub count_descendants {
 
 sub select_node_and_all_descendants {
     my ($self, $id) = @_;
+
+    confess 'You must specify an id' unless defined $id;
 
     my @columns = (
         $self->fully_qualify_column_name('id'),
