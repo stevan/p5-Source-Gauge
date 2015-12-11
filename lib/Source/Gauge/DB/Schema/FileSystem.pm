@@ -166,21 +166,17 @@ sub select_node_and_all_descendants {
     )
 }
 
-sub insert_descendant {
-    my ($self, %opts) = @_;
-
-=pod
-    -- adding 8
-
-    my $id = INSERT INTO `sg_filesystem`
-        (`name`, `is_file`, `parent_id`)
-        VALUES
-            ($opts{name}, ($opts{is_file} ? 1 : 0), $opts{parent_id});
-
-    -- adding 8 under 6
-
-    -- SELECT `ancestor` FROM `sg_filesystem_path` WHERE `descendant` = 6;
-    -- return [1, 3, 6]
+sub insert_node {
+    my ($self, %node) = @_;
+    $self->insert(
+        values => [
+            name       => $node{name}       // confess 'You must specify a `name` parameter',
+            is_file    => $node{is_file}    // 0,
+            is_deleted => $node{is_deleted} // 0,
+            parent_id  => $node{parent_id}  // confess 'You must specify a `parent_id` parameter',
+        ]
+    );
+}
 
     INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (1, 8);
     INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (3, 8);
