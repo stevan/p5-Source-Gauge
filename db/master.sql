@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS `sg_filesystem` (
 CREATE TABLE IF NOT EXISTS `sg_filesystem_path` (
     `ancestor`   INT UNSIGNED NOT NULL,
     `descendant` INT UNSIGNED NOT NULL,
+    `length`     INT UNSIGNED NOT NULL,
     PRIMARY KEY (`ancestor`, `descendant`)
 );
 

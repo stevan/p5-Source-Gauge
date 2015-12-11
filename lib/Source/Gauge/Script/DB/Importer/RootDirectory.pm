@@ -39,7 +39,7 @@ sub run {
     my ($fs_table, $fs_table_path) = $self->extract_filesystem;
 
     $self->log('%s => %s' => @$_) foreach @$fs_table;
-    $self->log('%s => %s' => @$_) foreach @$fs_table_path;
+    $self->log('%s => %s => %s' => @$_) foreach @$fs_table_path;
 
     if ($self->dry_run) {
         $self->log('... returning early because of dry_run');
@@ -64,6 +64,7 @@ sub run {
                 values => [
                     ancestor   => $_->[0],
                     descendant => $_->[1],
+                    length     => $_->[2],
                 ]
             ), @$fs_table_path)
         ]
@@ -91,7 +92,7 @@ sub extract_filesystem {
 
         foreach my $item ( @stack ) {
             $temp_fs_table_path{ $item } //= [];
-            push @{$temp_fs_table_path{ $item }} => [ $current_id ];
+            push @{$temp_fs_table_path{ $item }} => [ $current_id, $#stack ];
         }
 
         if ( -d $node ) {
