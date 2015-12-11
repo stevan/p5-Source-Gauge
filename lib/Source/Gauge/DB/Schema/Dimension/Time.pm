@@ -20,6 +20,11 @@ has '+columns'    => (
 
 sub select_id_by_datetime {
     my ($self, $datetime, @additional_columns) = @_;
+
+    confess 'You must specify a datetime object'
+        unless blessed $datetime
+            && $datetime->isa('DateTime');
+
     return $self->select(
         columns => [ $self->primary_key, @additional_columns ],
         where   => [

@@ -21,6 +21,9 @@ has '+columns'    => (
 
 sub select_by_sha {
     my ($self, $sha) = @_;
+
+    confess 'You must specify a sha' unless defined $sha;
+
     my $schema = $self->schema;
 
     my $Author = $schema->table('Commit::Author');
@@ -61,6 +64,9 @@ sub select_by_sha {
 
 sub select_associated_files_by_sha {
     my ($self, $sha) = @_;
+
+    confess 'You must specify a sha' unless defined $sha;
+
     my $schema = $self->schema;
 
     my $File       = $schema->table('Commit::File');
@@ -92,6 +98,9 @@ sub select_associated_files_by_sha {
 
 sub select_associated_files_by_commit_id {
     my ($self, $id) = @_;
+
+    confess 'You must specify an id' unless defined $id;
+
     my $schema = $self->schema;
 
     my $File       = $schema->table('Commit::File');
