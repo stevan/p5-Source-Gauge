@@ -2,7 +2,7 @@ package Source::Gauge::DB::Schema::FileSystem;
 use Moose;
 
 use SQL::Combine::Query::Select::RawSQL;
-use SQL::Combine::Query::Insert::RawSQL
+use SQL::Combine::Query::Insert::RawSQL;
 
 extends 'SQL::Combine::Table';
 
