@@ -2,6 +2,8 @@ package Source::Gauge::DB::Schema::FileSystem;
 use Moose;
 
 use SQL::Combine::Query::Select::RawSQL;
+use SQL::Combine::Query::Insert::RawSQL
+
 extends 'SQL::Combine::Table';
 
 has '+name'       => ( default => 'FileSystem' );
@@ -178,15 +180,41 @@ sub insert_node {
     );
 }
 
-    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (1, 8);
-    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (3, 8);
-    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (6, 8);
+sub insert_node_into_tree {
+    my ($self, $id, $parent_id) = @_;
 
-    -- adding 8 itself
+    confess 'You must specify an id'       unless defined $id;
+    confess 'You must specify a parent_id' unless defined $parent_id;
 
-    INSERT INTO `sg_filesystem_path` (`ancestor`, `descendant`) VALUES (8, 8);
-=cut
+    my $c_table = $self->closure_table_name;
 
+    return SQL::Combine::Query::Insert::RawSQL->new(
+        sql => (
+            'INSERT INTO ' . $c_table . ' (ancestor, descendant, length) '
+          . 'SELECT ancestor, ?, length + 1'
+          . '  FROM ' . $c_table
+          . ' WHERE descendant = ?'
+          . ' UNION ALL (SELECT ?, ?, length + 1 '
+                       . '  FROM ' . $c_table
+                       . ' WHERE descendant = ? LIMIT 1)'
+        ),
+        # NOTE:
+        # above here, in the second query, we LIMIT 1 because
+        # we need to the length to +1 against, otherwise we
+        # could have just done (SELECT ?, ?) where the ? would
+        # become the id of the newly inserted row.
+        bind => [
+            # in the first embedded SELECT, we need ...
+            $id,        # the new id to populate the descendant column
+            $parent_id, # the parent id to find all the ancestors
+            # then in the second UNION-ed SELECT we need ...
+            $id,        # the new id to populate the ancestor column
+            $id,        # the new id to populate the descendant column
+            $parent_id, # the parent id to find all the ancestors
+        ],
+        table_name   => $c_table,
+        driver       => $self->driver,
+    );
 }
 
 
