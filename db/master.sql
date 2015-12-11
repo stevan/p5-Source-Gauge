@@ -43,39 +43,6 @@ CREATE TABLE IF NOT EXISTS `sg_date_dimension` (
 );
 
 -- ----------------------------------------------
--- Commits
--- ----------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `sg_commit` (
-    `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `sha`       CHAR(40)     NOT NULL,
-    `message`   TEXT         NOT NULL,
-    `author_id` INT UNSIGNED NOT NULL,
-    `date_id`   INT UNSIGNED NOT NULL,
-    `time_id`   INT UNSIGNED NOT NULL,
-    PRIMARY KEY(`id`),
-    UNIQUE  KEY `uniq_sha` (`sha`)
-);
-
-CREATE TABLE IF NOT EXISTS `sg_commit_author` (
-    `id`     INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name`   VARCHAR(255) NOT NULL,
-    `email`  VARCHAR(255) NOT NULL,
-    PRIMARY KEY(`id`),
-    UNIQUE  KEY `name_and_email` (`name`, `email`)
-);
-
-CREATE TABLE IF NOT EXISTS `sg_commit_file` (
-    `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `commit_id` INT UNSIGNED NOT NULL,
-    `file_id`   INT UNSIGNED NOT NULL,
-    `added`     INT UNSIGNED NOT NULL,
-    `removed`   INT UNSIGNED NOT NULL,
-    PRIMARY KEY(`id`),
-    UNIQUE  KEY `commit_and_file` (`commit_id`, `file_id`)
-);
-
--- ----------------------------------------------
 -- FileSystem
 -- ----------------------------------------------
 
@@ -85,14 +52,59 @@ CREATE TABLE IF NOT EXISTS `sg_filesystem` (
     `is_file`    BOOL         NOT NULL,
     `is_deleted` BOOL         NOT NULL,
     `parent_id`  INT UNSIGNED, -- null parent is the root
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+
+    FOREIGN KEY (`parent_id`) REFERENCES `sg_filesystem`(`id`)
 );
 
 CREATE TABLE IF NOT EXISTS `sg_filesystem_path` (
     `ancestor`   INT UNSIGNED NOT NULL,
     `descendant` INT UNSIGNED NOT NULL,
     `length`     INT UNSIGNED NOT NULL,
-    PRIMARY KEY (`ancestor`, `descendant`)
+    PRIMARY KEY (`ancestor`, `descendant`),
+
+    FOREIGN KEY (`ancestor`)   REFERENCES `sg_filesystem`(`id`),
+    FOREIGN KEY (`descendant`) REFERENCES `sg_filesystem`(`id`)
+);
+
+-- ----------------------------------------------
+-- Commits
+-- ----------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `sg_commit_author` (
+    `id`     INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`   VARCHAR(255) NOT NULL,
+    `email`  VARCHAR(255) NOT NULL,
+    PRIMARY KEY(`id`),
+    UNIQUE  KEY `name_and_email` (`name`, `email`)
+);
+
+CREATE TABLE IF NOT EXISTS `sg_commit` (
+    `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `sha`       CHAR(40)     NOT NULL,
+    `message`   TEXT         NOT NULL,
+    `author_id` INT UNSIGNED NOT NULL,
+    `date_id`   INT UNSIGNED NOT NULL,
+    `time_id`   INT UNSIGNED NOT NULL,
+    PRIMARY KEY(`id`),
+    UNIQUE  KEY `uniq_sha` (`sha`),
+
+    FOREIGN KEY (`author_id`) REFERENCES `sg_commit_author`(`id`),
+    FOREIGN KEY (`time_id`)   REFERENCES `sg_time_dimension`(`id`),
+    FOREIGN KEY (`date_id`)   REFERENCES `sg_date_dimension`(`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `sg_commit_file` (
+    `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `commit_id` INT UNSIGNED NOT NULL,
+    `file_id`   INT UNSIGNED NOT NULL,
+    `added`     INT UNSIGNED NOT NULL,
+    `removed`   INT UNSIGNED NOT NULL,
+    PRIMARY KEY(`id`),
+    UNIQUE  KEY `commit_and_file` (`commit_id`, `file_id`),
+
+    FOREIGN KEY (`commit_id`) REFERENCES `sg_commit`(`id`),
+    FOREIGN KEY (`file_id`)   REFERENCES `sg_filesystem`(`id`)
 );
 
 -- ==================================================================
