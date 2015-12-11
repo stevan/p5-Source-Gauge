@@ -1,6 +1,7 @@
 package Source::Gauge::DB::Schema::FileSystem;
 use Moose;
 
+use SQL::Combine::Query::Select::RawSQL;
 extends 'SQL::Combine::Table';
 
 has '+name'       => ( default => 'FileSystem' );
