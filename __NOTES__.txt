@@ -4,3 +4,7 @@
     - import it as part of the GitCommitRange stuff
 
 
+
+== LINKS:
+
+- https://www.cqse.eu/en/blog/mccabe-cyclomatic-complexity/
