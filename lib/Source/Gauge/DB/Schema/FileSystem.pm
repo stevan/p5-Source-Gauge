@@ -172,10 +172,12 @@ sub insert_node {
     my ($self, %node) = @_;
     $self->insert(
         values => [
-            name       => $node{name}       // confess 'You must specify a `name` parameter',
-            is_file    => $node{is_file}    // 0,
-            is_deleted => $node{is_deleted} // 0,
-            parent_id  => $node{parent_id}  // confess 'You must specify a `parent_id` parameter',
+            name       => ($node{name}       // confess 'You must specify a `name` parameter'),
+            is_file    => ($node{is_file}    // 0),
+            is_deleted => ($node{is_deleted} // 0),
+            parent_id  => (exists $node{parent_id}  # NOTE: this can be a null
+                                ? $node{parent_id}
+                                : confess 'You must specify a `parent_id` parameter'),
         ]
     );
 }
