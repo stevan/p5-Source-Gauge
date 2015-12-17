@@ -38,6 +38,13 @@ sub create_database {
     return;
 }
 
+sub drop_database {
+    my %opts = (%DEFAULT_OPTS, @_);
+    open my $mysql, '|-', _build_mysql_base_cmd( \%opts );
+    $mysql->print("DROP DATABASE `$_`;") foreach ($opts{database});
+    $mysql->close;
+}
+
 ## --------------------------------------------------------
 
 sub _build_mysql_base_cmd {
