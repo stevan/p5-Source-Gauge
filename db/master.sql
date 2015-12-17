@@ -46,6 +46,11 @@ CREATE TABLE IF NOT EXISTS `sg_date_dimension` (
 -- FileSystem
 -- ----------------------------------------------
 
+-- TODO:
+-- need different mount points for the filesystem
+-- so that we can support multiple repos
+-- - SL
+
 CREATE TABLE IF NOT EXISTS `sg_filesystem` (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name`       VARCHAR(255) NOT NULL,
@@ -70,6 +75,10 @@ CREATE TABLE IF NOT EXISTS `sg_filesystem_path` (
 -- ----------------------------------------------
 -- Commits
 -- ----------------------------------------------
+
+-- TODO:
+-- need to support multiple repos
+-- - SL
 
 CREATE TABLE IF NOT EXISTS `sg_commit_author` (
     `id`     INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -98,14 +107,20 @@ CREATE TABLE IF NOT EXISTS `sg_commit_file` (
     `id`        INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `commit_id` INT UNSIGNED NOT NULL,
     `file_id`   INT UNSIGNED NOT NULL,
-    `added`     INT UNSIGNED NOT NULL,
-    `removed`   INT UNSIGNED NOT NULL,
+    `added`     INT UNSIGNED NOT NULL, -- TODO : remove this and put it in metrics
+    `removed`   INT UNSIGNED NOT NULL, -- TODO : remove this and put it in metrics
     PRIMARY KEY(`id`),
     UNIQUE  KEY `commit_and_file` (`commit_id`, `file_id`),
 
     FOREIGN KEY (`commit_id`) REFERENCES `sg_commit`(`id`),
     FOREIGN KEY (`file_id`)   REFERENCES `sg_filesystem`(`id`)
 );
+
+-- ----------------------------------------------
+-- Metric Storage
+-- ----------------------------------------------
+
+-- TODO
 
 -- ==================================================================
 -- END Source::Gauge schema defintion
