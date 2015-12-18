@@ -46,11 +46,6 @@ CREATE TABLE IF NOT EXISTS `sg_date_dimension` (
 -- FileSystem
 -- ----------------------------------------------
 
--- TODO:
--- need different mount points for the filesystem
--- so that we can support multiple repos
--- - SL
-
 CREATE TABLE IF NOT EXISTS `sg_filesystem` (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name`       VARCHAR(255) NOT NULL,
@@ -72,13 +67,27 @@ CREATE TABLE IF NOT EXISTS `sg_filesystem_path` (
     FOREIGN KEY (`descendant`) REFERENCES `sg_filesystem`(`id`)
 );
 
+CREATE TABLE IF NOT EXISTS `sg_filesystem_mount` (
+    `id`      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`    VARCHAR(255) NOT NULL,
+    `root_id` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+
+    FOREIGN KEY (`root_id`) REFERENCES `sg_filesystem`(`id`)
+);
+
 -- ----------------------------------------------
 -- Commits
 -- ----------------------------------------------
 
--- TODO:
--- need to support multiple repos
--- - SL
+CREATE TABLE IF NOT EXISTS `sg_commit_repo` (
+    `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`        VARCHAR(255) NOT NULL,
+    `fs_mount_id` INT UNSIGNED NOT NULL,
+    PRIMARY KEY(`id`),
+
+    FOREIGN KEY (`fs_mount_id`) REFERENCES `sg_filesystem_mount`(`id`)
+);
 
 CREATE TABLE IF NOT EXISTS `sg_commit_author` (
     `id`     INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -93,12 +102,14 @@ CREATE TABLE IF NOT EXISTS `sg_commit` (
     `sha`       CHAR(40)     NOT NULL,
     `message`   TEXT         NOT NULL,
     `author_id` INT UNSIGNED NOT NULL,
+    `repo_id`   INT UNSIGNED NOT NULL,
     `date_id`   INT UNSIGNED NOT NULL,
     `time_id`   INT UNSIGNED NOT NULL,
     PRIMARY KEY(`id`),
     UNIQUE  KEY `uniq_sha` (`sha`),
 
     FOREIGN KEY (`author_id`) REFERENCES `sg_commit_author`(`id`),
+    FOREIGN KEY (`repo_id`)   REFERENCES `sg_commit_repo`(`id`),
     FOREIGN KEY (`time_id`)   REFERENCES `sg_time_dimension`(`id`),
     FOREIGN KEY (`date_id`)   REFERENCES `sg_date_dimension`(`id`)
 );
