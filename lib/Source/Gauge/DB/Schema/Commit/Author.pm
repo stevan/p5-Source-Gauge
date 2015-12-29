@@ -1,21 +1,28 @@
 package Source::Gauge::DB::Schema::Commit::Author;
-use Moose;
+use strict;
+use warnings;
 
-extends 'SQL::Combine::Table';
+use Carp         'confess';
+use Scalar::Util 'blessed';
 
-has '+name'       => ( default => 'Commit::Author' );
-has '+table_name' => ( default => 'sg_commit_author' );
-has '+driver'     => ( default => 'MySQL' );
-has '+columns'    => (
-    default => sub {[qw[
+use parent 'SQL::Combine::Table';
+
+sub new {
+    my ($class, %args) = @_;
+
+    $args{name}       //= 'Commit::Author';
+    $args{table_name} //= 'sg_commit_author';
+    $args{driver}     //= 'MySQL';
+    $args{columns}    //= [qw[
         id
+
         name
         email
-    ]]}
-);
+    ]];
 
-__PACKAGE__->meta->make_immutable;
+    return $class->SUPER::new( %args );
+}
 
-no Moose; 1;
+1;
 
 __END__

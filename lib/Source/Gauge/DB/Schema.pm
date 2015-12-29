@@ -1,5 +1,9 @@
 package Source::Gauge::DB::Schema;
-use Moose;
+use strict;
+use warnings;
+
+use Carp         'confess';
+use Scalar::Util 'blessed';
 
 use Source::Gauge::DB::Schema::Commit;
 use Source::Gauge::DB::Schema::Commit::Author;
@@ -10,25 +14,24 @@ use Source::Gauge::DB::Schema::Dimension::Date;
 
 use Source::Gauge::DB::Schema::FileSystem;
 
-extends 'SQL::Combine::Schema';
+use parent 'SQL::Combine::Schema';
 
-has '+name'   => ( default => 'sg' );
-has '+tables' => (
-    default => sub {
-        return +[
-            Source::Gauge::DB::Schema::Commit->new,
-            Source::Gauge::DB::Schema::Commit::Author->new,
-            Source::Gauge::DB::Schema::Commit::File->new,
-            Source::Gauge::DB::Schema::Dimension::Time->new,
-            Source::Gauge::DB::Schema::Dimension::Date->new,
-            Source::Gauge::DB::Schema::FileSystem->new,
-        ]
-    }
-);
+sub new {
+    my ($class, %args) = @_;
 
+    $args{name}   //= 'sg';
+    $args{tables} //= [
+        Source::Gauge::DB::Schema::Commit->new,
+        Source::Gauge::DB::Schema::Commit::Author->new,
+        Source::Gauge::DB::Schema::Commit::File->new,
+        Source::Gauge::DB::Schema::Dimension::Time->new,
+        Source::Gauge::DB::Schema::Dimension::Date->new,
+        Source::Gauge::DB::Schema::FileSystem->new,
+    ];
 
-__PACKAGE__->meta->make_immutable;
+    return $class->SUPER::new( %args );
+}
 
-no Moose; 1;
+1;
 
 __END__

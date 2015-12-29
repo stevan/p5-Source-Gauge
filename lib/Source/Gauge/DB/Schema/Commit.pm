@@ -1,13 +1,19 @@
 package Source::Gauge::DB::Schema::Commit;
-use Moose;
+use strict;
+use warnings;
 
-extends 'SQL::Combine::Table';
+use Carp         'confess';
+use Scalar::Util 'blessed';
 
-has '+name'       => ( default => 'Commit' );
-has '+table_name' => ( default => 'sg_commit' );
-has '+driver'     => ( default => 'MySQL' );
-has '+columns'    => (
-    default => sub {[qw[
+use parent 'SQL::Combine::Table';
+
+sub new {
+    my ($class, %args) = @_;
+
+    $args{name}       //= 'Commit';
+    $args{table_name} //= 'sg_commit';
+    $args{driver}     //= 'MySQL';
+    $args{columns}    //= [qw[
         id
 
         sha
@@ -16,8 +22,10 @@ has '+columns'    => (
         author_id
         date_id
         time_id
-    ]]}
-);
+    ]];
+
+    return $class->SUPER::new( %args );
+}
 
 sub select_by_sha {
     my ($self, $sha) = @_;
@@ -122,9 +130,7 @@ sub select_associated_files_by_commit_id {
     );
 }
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose; 1;
+1;
 
 __END__
 

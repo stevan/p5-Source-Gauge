@@ -1,29 +1,35 @@
 package Source::Gauge::DB::Schema::FileSystem;
-use Moose;
+use strict;
+use warnings;
+
+use Carp         'confess';
+use Scalar::Util 'blessed';
 
 use SQL::Combine::Query::Select::RawSQL;
 use SQL::Combine::Query::Insert::RawSQL;
 
-extends 'SQL::Combine::Table';
+use parent 'SQL::Combine::Table';
 
-has '+name'       => ( default => 'FileSystem' );
-has '+table_name' => ( default => 'sg_filesystem' );
-has '+driver'     => ( default => 'MySQL' );
-has '+columns'    => (
-    default => sub {[qw[
+sub new {
+    my ($class, %args) = @_;
+
+    $args{name}       //= 'FileSystem';
+    $args{table_name} //= 'sg_filesystem';
+    $args{driver}     //= 'MySQL';
+    $args{columns}    //= [qw[
         id
         name
         is_file
         is_deleted
         parent_id
-    ]]}
-);
+    ]];
 
-has 'closure_table_name' => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => 'sg_filesystem_path'
-);
+    my $self = $class->SUPER::new( %args );
+
+    $self->{closure_table_name} = $args{closure_table_name} // 'sg_filesystem_path';
+
+    return $self;
+}
 
 sub fully_qualify_closure_table_column_name {
     my ($self, $column_name) = @_;
@@ -219,9 +225,6 @@ sub insert_node_into_tree {
     );
 }
 
-
-__PACKAGE__->meta->make_immutable;
-
-no Moose; 1;
+1;
 
 __END__

@@ -1,23 +1,30 @@
 package Source::Gauge::DB::Schema::Commit::File;
-use Moose;
+use strict;
+use warnings;
 
-extends 'SQL::Combine::Table';
+use Carp         'confess';
+use Scalar::Util 'blessed';
 
-has '+name'       => ( default => 'Commit::File' );
-has '+table_name' => ( default => 'sg_commit_file' );
-has '+driver'     => ( default => 'MySQL' );
-has '+columns'    => (
-    default => sub {[qw[
+use parent 'SQL::Combine::Table';
+
+sub new {
+    my ($class, %args) = @_;
+
+    $args{name}       //= 'Commit::File';
+    $args{table_name} //= 'sg_commit_file';
+    $args{driver}     //= 'MySQL';
+    $args{columns}    //= [qw[
         id
+
         commit_id
         file_id
         added
         removed
-    ]]}
-);
+    ]];
 
-__PACKAGE__->meta->make_immutable;
+    return $class->SUPER::new( %args );
+}
 
-no Moose; 1;
+1;
 
 __END__

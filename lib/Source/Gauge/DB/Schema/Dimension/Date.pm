@@ -1,15 +1,21 @@
 package Source::Gauge::DB::Schema::Dimension::Date;
-use Moose;
+use strict;
+use warnings;
+
+use Carp         'confess';
+use Scalar::Util 'blessed';
 
 use DateTime;
 
-extends 'SQL::Combine::Table';
+use parent 'SQL::Combine::Table';
 
-has '+name'       => ( default => 'Dimension::Date' );
-has '+table_name' => ( default => 'sg_date_dimension' );
-has '+driver'     => ( default => 'MySQL' );
-has '+columns'    => (
-    default => sub {[qw[
+sub new {
+    my ($class, %args) = @_;
+
+    $args{name}       //= 'Dimension::Date';
+    $args{table_name} //= 'sg_date_dimension';
+    $args{driver}     //= 'MySQL';
+    $args{columns}    //= [qw[
         id
 
         day
@@ -26,8 +32,10 @@ has '+columns'    => (
 
         is_leap_year
         is_dst
-    ]]}
-);
+    ]];
+
+    return $class->SUPER::new( %args );
+}
 
 sub select_id_by_datetime {
     my ($self, $datetime, @additional_columns) = @_;
@@ -46,8 +54,6 @@ sub select_id_by_datetime {
     );
 }
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose; 1;
+1;
 
 __END__

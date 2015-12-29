@@ -1,22 +1,30 @@
 package Source::Gauge::DB::Schema::Dimension::Time;
-use Moose;
+use strict;
+use warnings;
+
+use Carp         'confess';
+use Scalar::Util 'blessed';
 
 use DateTime;
 
-extends 'SQL::Combine::Table';
+use parent 'SQL::Combine::Table';
 
-has '+name'       => ( default => 'Dimension::Time' );
-has '+table_name' => ( default => 'sg_time_dimension' );
-has '+driver'     => ( default => 'MySQL' );
-has '+columns'    => (
-    default => sub {[qw[
+sub new {
+    my ($class, %args) = @_;
+
+    $args{name}       //= 'Dimension::Time';
+    $args{table_name} //= 'sg_time_dimension';
+    $args{driver}     //= 'MySQL';
+    $args{columns}    //= [qw[
         id
 
         second
         minute
         hour
-    ]]}
-);
+    ]];
+
+    return $class->SUPER::new( %args );
+}
 
 sub select_id_by_datetime {
     my ($self, $datetime, @additional_columns) = @_;
@@ -35,8 +43,6 @@ sub select_id_by_datetime {
     );
 }
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose; 1;
+1;
 
 __END__
